@@ -53,8 +53,8 @@ public class GADUtil: NSObject {
     }
     
     // native ad impression date
-    open var tabNativeAdImpressionDate: Date? = nil
-    open var homeNativeAdImpressionDate: Date? = nil
+    open var tabNativeAdImpressionDate: Date = Date(timeIntervalSinceNow: -11)
+    open var homeNativeAdImpressionDate: Date = Date(timeIntervalSinceNow: -11)
 }
 
 extension GADUtil {
@@ -544,7 +544,7 @@ extension InterstitialADModel : GADFullScreenContentDelegate {
     }
 }
 
-class NativeADModel: ADBaseModel {
+public class NativeADModel: ADBaseModel {
     /// 廣告加載器
     var loader: GADAdLoader?
     /// 原生廣告
@@ -570,14 +570,14 @@ extension NativeADModel {
 }
 
 extension NativeADModel: GADAdLoaderDelegate {
-    func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
+    public func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
         NSLog("[AD] (\(position.rawValue)) load ad FAILED for id \(model?.theAdID ?? "invalid id")")
         loadedHandler?(false, error.localizedDescription)
     }
 }
 
 extension NativeADModel: GADNativeAdLoaderDelegate {
-    func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
+    public func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
         NSLog("[AD] (\(position.rawValue)) load ad SUCCESSFUL for id \(model?.theAdID ?? "invalid id") ✅✅✅✅")
         self.nativeAd = nativeAd
         loadedDate = Date()
@@ -586,15 +586,15 @@ extension NativeADModel: GADNativeAdLoaderDelegate {
 }
 
 extension NativeADModel: GADNativeAdDelegate {
-    func nativeAdDidRecordClick(_ nativeAd: GADNativeAd) {
+    public func nativeAdDidRecordClick(_ nativeAd: GADNativeAd) {
         clickHandler?()
     }
     
-    func nativeAdDidRecordImpression(_ nativeAd: GADNativeAd) {
+    public func nativeAdDidRecordImpression(_ nativeAd: GADNativeAd) {
         impressionHandler?()
     }
     
-    func nativeAdWillPresentScreen(_ nativeAd: GADNativeAd) {
+    public func nativeAdWillPresentScreen(_ nativeAd: GADNativeAd) {
     }
 }
 

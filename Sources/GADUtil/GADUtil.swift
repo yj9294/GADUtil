@@ -548,7 +548,7 @@ public class NativeADModel: ADBaseModel {
     /// 廣告加載器
     var loader: GADAdLoader?
     /// 原生廣告
-    var nativeAd: GADNativeAd?
+    public var nativeAd: GADNativeAd?
     
     deinit {
         NSLog("[Memory] (\(position.rawValue)) \(self) 💧💧💧.")

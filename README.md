@@ -1,29 +1,57 @@
 # GADUtil
 
-[![CI Status](https://img.shields.io/travis/Nico/GADUtil.svg?style=flat)](https://travis-ci.org/Nico/GADUtil)
-[![Version](https://img.shields.io/cocoapods/v/GADUtil.svg?style=flat)](https://cocoapods.org/pods/GADUtil)
-[![License](https://img.shields.io/cocoapods/l/GADUtil.svg?style=flat)](https://cocoapods.org/pods/GADUtil)
-[![Platform](https://img.shields.io/cocoapods/p/GADUtil.svg?style=flat)](https://cocoapods.org/pods/GADUtil)
+该工程只具有插屏和原生两种广告位复用，若需添加新的广告位请联系 nicoyang.mason@gmailc.om 也欢迎多多交流
 
-## Example
+#⚠️注意事项：
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+1. 需在主工程中导入GADMobile.json文件
 
-## Requirements
+2. 文件格式如下
 
-## Installation
+{
+    "showTimes":30,
+    "clickTimes":5,
+    "ads": [
+        {
+            "key": "interstitial",
+            "value": [
+                {
+                    "theAdPriority":1,
+                    "theAdID":"ca-app-pub-3940256099942544/4411468910"
+                },
+                {
+                    "theAdPriority":3,
+                    "theAdID":"ca-app-pub-3940256099942544/4411468910X3"
+                },
+                {
+                    "theAdPriority":2,
+                    "theAdID":"ca-app-pub-3940256099942544/5135589807"
+                }
+            ]
+        },
+        {
+            "key": "native",
+            "value": [
+                {
+                    "theAdPriority":1,
+                    "theAdID":"ca-app-pub-3940256099942544/2521693316"
+                },
+                {
+                    "theAdPriority":2,
+                    "theAdID":"ca-app-pub-3940256099942544/3986624511"
+                },
+                {
+                    "theAdPriority":3,
+                    "theAdID":"ca-app-pub-3940256099942544/3986624511X3"
+                }
+            ]
+        }
+    ]
+}
 
-GADUtil is available through [CocoaPods](https://cocoapods.org). To install
-it, simply add the following line to your Podfile:
+3. info.plist文件添加如下字段
 
-```ruby
-pod 'GADUtil'
-```
-
-## Author
-
-Nico, nicoyang.mason@gmail.com
-
-## License
-
-GADUtil is available under the MIT license. See the LICENSE file for more info.
+    <key>GADApplicationIdentifier</key>
+    <string></string>
+    <key>GADIsAdManagerApp</key>
+    <true/>

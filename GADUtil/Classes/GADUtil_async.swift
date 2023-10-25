@@ -90,6 +90,7 @@ extension GADLoadModel {
     func prepareLoadAd(_ array: [GADModel], at index: Int = 0)  async throws -> GADBaseModel? {
         if  index >= array.count {
             NSLog("[AD] (\(position.rawValue)) prepare Load Ad Failed, no more avaliable config.")
+            throw GADPreloadError.config
         }
         NSLog("[AD] (\(position)) prepareLoaded.")
         if GADUtil.share.isGADLimited {

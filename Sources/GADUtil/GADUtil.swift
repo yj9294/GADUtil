@@ -545,7 +545,11 @@ extension GADOpenModel: GADFullScreenContentDelegate {
             if let vc = vc {
                 self.ad?.present(fromRootViewController: vc)
             } else if let keyWindow = (UIApplication.shared.connectedScenes.filter({$0 is UIWindowScene}).first as? UIWindowScene)?.keyWindow, let rootVC = keyWindow.rootViewController {
-                self.ad?.present(fromRootViewController: rootVC)
+                if let pc = rootVC.presentedViewController {
+                    self.ad?.present(fromRootViewController: pc)
+                } else {
+                    self.ad?.present(fromRootViewController: rootVC)
+                }
             }
         }
     }

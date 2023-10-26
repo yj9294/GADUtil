@@ -98,7 +98,7 @@ extension GADUtil {
             limit?.clickTimes = clickTime + 1
             NSLog("[AD] [LIMIT] clickTime: \(clickTime+1) total: \(config?.clickTimes ?? 0)")
             if isGADLimited {
-                NSLog("[AD] 用戶超限制。")
+                NSLog("[AD] ad limited.")
                 self.clean(.interstitial)
                 self.clean(.native)
                 return
@@ -159,6 +159,7 @@ extension GADUtil {
             if let ad = loadAD?.loadedArray.first as? GADNativeModel, !isGADLimited {
                 /// 预加载回来数据 当时已经有显示数据了
                 if loadAD?.isDisplay == true {
+                    NSLog("[ad] (\(position.rawValue)) ad is being display.")
                     return
                 }
                 ad.nativeAd?.unregisterAdView()
@@ -176,6 +177,7 @@ extension GADUtil {
             } else {
                 /// 预加载回来数据 当时已经有显示数据了 并且没超过限制
                 if loadAD?.isDisplay == true, !isGADLimited {
+                    NSLog("[ad] (\(position.rawValue)) preload ad is being display.")
                     return
                 }
                 completion?(nil)
@@ -366,17 +368,17 @@ extension GADLoadModel {
         }
         NSLog("[AD] (\(position)) prepareLoaded.")
         if GADUtil.share.isGADLimited {
-            NSLog("[AD] (\(position.rawValue)) 用戶超限制。")
+            NSLog("[AD] (\(position.rawValue)) load limit")
             callback?(false)
             return
         }
         if isPreloadedAD {
-            NSLog("[AD] (\(position.rawValue)) 已經加載完成。")
+            NSLog("[AD] (\(position.rawValue)) load completion。")
             callback?(false)
             return
         }
         if isPreloadingAD {
-            NSLog("[AD] (\(position.rawValue)) 正在加載中.")
+            NSLog("[AD] (\(position.rawValue)) loading ad.")
             callback?(false)
             return
         }
@@ -391,7 +393,7 @@ extension GADLoadModel {
             ad = GADOpenModel(model: array[index])
         }
         guard let ad = ad  else {
-            NSLog("[AD] (\(position.rawValue)) 广告位错误.")
+            NSLog("[AD] (\(position.rawValue)) posion error.")
             callback?(false)
             return
         }
@@ -491,7 +493,11 @@ extension GADInterstitialModel: GADFullScreenContentDelegate {
             if let vc = vc {
                 self.ad?.present(fromRootViewController: vc)
             } else if let keyWindow = (UIApplication.shared.connectedScenes.filter({$0 is UIWindowScene}).first as? UIWindowScene)?.keyWindow, let rootVC = keyWindow.rootViewController {
-                self.ad?.present(fromRootViewController: rootVC)
+                if let pc = rootVC.presentedViewController {
+                    self.ad?.present(fromRootViewController: pc)
+                } else {
+                    self.ad?.present(fromRootViewController: rootVC)
+                }
             }
         }
     }

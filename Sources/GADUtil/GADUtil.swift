@@ -531,7 +531,7 @@ extension GADOpenModel: GADFullScreenContentDelegate {
         loadedHandler = completion
         loadedDate = nil
         let orientation = (UIApplication.shared.connectedScenes.filter({$0 is UIWindowScene}).first as? UIWindowScene)?.interfaceOrientation ?? .portrait
-        GADAppOpenAd.load(withAdUnitID: model?.theAdID ?? "", request: GADRequest()) { [weak self] ad, error in
+        GADAppOpenAd.load(withAdUnitID: model?.theAdID ?? "", request: GADRequest(), orientation: .portrait) { [weak self] ad, error in
             guard let self = self else { return }
             if let error = error {
                 NSLog("[AD] (\(self.position.rawValue)) load ad FAILED for id \(self.model?.theAdID ?? "invalid id")")

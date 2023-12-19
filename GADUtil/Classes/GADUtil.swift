@@ -267,6 +267,13 @@ public class GADBaseModel: NSObject, Identifiable {
     /// 廣告位置
     var position: GADPosition = .interstitial
     
+    // 收入
+    var price: Double = 0.0
+    // 收入货币
+    var currency: String = "USD"
+    // 广告网络
+    var network: String? = nil
+    
     init(model: GADModel?) {
         super.init()
         self.model = model
@@ -482,6 +489,11 @@ extension GADInterstitialModel: GADFullScreenContentDelegate {
             }
             NSLog("[AD] (\(self.position.rawValue)) load ad SUCCESSFUL for id \(self.model?.theAdID ?? "invalid id") ✅✅✅✅")
             self.ad = ad
+            self.ad?.paidEventHandler = { adValue in
+                self.price = Double(truncating: adValue.value)
+                self.currency = adValue.currencyCode
+            }
+            self.network = self.ad?.responseInfo.adNetworkClassName
             self.ad?.fullScreenContentDelegate = self
             self.loadedDate = Date()
             self.loadedHandler?(true, "")
@@ -538,8 +550,13 @@ extension GADOpenModel: GADFullScreenContentDelegate {
                 self.loadedHandler?(false, error.localizedDescription)
                 return
             }
-            NSLog("[AD] (\(self.position.rawValue)) load ad SUCCESSFUL for id \(self.model?.theAdID ?? "invalid id") ✅✅✅✅")
             self.ad = ad
+            self.ad?.paidEventHandler = { adValue in
+                self.price = Double(truncating: adValue.value)
+                self.currency = adValue.currencyCode
+            }
+            self.network = self.ad?.responseInfo.adNetworkClassName
+            NSLog("[AD] (\(self.position.rawValue)) load ad SUCCESSFUL for id \(self.model?.theAdID ?? "invalid id") ✅✅✅✅")
             self.ad?.fullScreenContentDelegate = self
             self.loadedDate = Date()
             self.loadedHandler?(true, "")
@@ -616,6 +633,11 @@ extension GADNativeModel: GADNativeAdLoaderDelegate {
     public func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
         NSLog("[AD] (\(position.rawValue)) load ad SUCCESSFUL for id \(model?.theAdID ?? "invalid id") ✅✅✅✅")
         self.nativeAd = nativeAd
+        self.nativeAd?.paidEventHandler = { adValue in
+            self.price = Double(truncating: adValue.value)
+            self.currency = adValue.currencyCode
+        }
+        self.network = self.nativeAd?.responseInfo.adNetworkClassName
         loadedDate = Date()
         loadedHandler?(true, "")
     }

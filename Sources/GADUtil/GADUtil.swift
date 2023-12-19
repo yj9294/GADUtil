@@ -268,7 +268,7 @@ public class GADBaseModel: NSObject, Identifiable {
     var position: GADPosition = .interstitial
     
     // 收入
-    var value: Double = 0.0
+    var price: Double = 0.0
     // 收入货币
     var currency: String = "USD"
     // 广告网络
@@ -490,7 +490,7 @@ extension GADInterstitialModel: GADFullScreenContentDelegate {
             NSLog("[AD] (\(self.position.rawValue)) load ad SUCCESSFUL for id \(self.model?.theAdID ?? "invalid id") ✅✅✅✅")
             self.ad = ad
             self.ad?.paidEventHandler = { adValue in
-                self.value = Double(truncating: adValue.value)
+                self.price = Double(truncating: adValue.value)
                 self.currency = adValue.currencyCode
             }
             self.network = self.ad?.responseInfo.adNetworkClassName
@@ -552,7 +552,7 @@ extension GADOpenModel: GADFullScreenContentDelegate {
             }
             self.ad = ad
             self.ad?.paidEventHandler = { adValue in
-                self.value = Double(truncating: adValue.value)
+                self.price = Double(truncating: adValue.value)
                 self.currency = adValue.currencyCode
             }
             self.network = self.ad?.responseInfo.adNetworkClassName
@@ -634,7 +634,7 @@ extension GADNativeModel: GADNativeAdLoaderDelegate {
         NSLog("[AD] (\(position.rawValue)) load ad SUCCESSFUL for id \(model?.theAdID ?? "invalid id") ✅✅✅✅")
         self.nativeAd = nativeAd
         self.nativeAd?.paidEventHandler = { adValue in
-            self.value = Double(truncating: adValue.value)
+            self.price = Double(truncating: adValue.value)
             self.currency = adValue.currencyCode
         }
         self.network = self.nativeAd?.responseInfo.adNetworkClassName

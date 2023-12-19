@@ -263,9 +263,9 @@ public class GADBaseModel: NSObject, Identifiable {
     var loadedHandler: ((_ result: Bool, _ error: String) -> Void)?
     
     /// 當前廣告model
-    var model: GADModel?
+    public var model: GADModel?
     /// 廣告位置
-    var position: GADPosition = .interstitial
+    public var position: GADPosition = .interstitial
     
     // 收入
     public var price: Double = 0.0
@@ -291,9 +291,9 @@ extension GADBaseModel {
     }
 }
 
-struct GADModel: Codable {
-    var theAdPriority: Int
-    var theAdID: String
+public struct GADModel: Codable {
+    public var theAdPriority: Int
+    public var theAdID: String
 }
 
 struct GADLimit: Codable {

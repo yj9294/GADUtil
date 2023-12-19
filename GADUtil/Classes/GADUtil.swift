@@ -268,11 +268,11 @@ public class GADBaseModel: NSObject, Identifiable {
     var position: GADPosition = .interstitial
     
     // 收入
-    var price: Double = 0.0
+    public var price: Double = 0.0
     // 收入货币
-    var currency: String = "USD"
+    public var currency: String = "USD"
     // 广告网络
-    var network: String? = nil
+    public var network: String? = nil
     
     init(model: GADModel?) {
         super.init()

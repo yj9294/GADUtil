@@ -231,6 +231,8 @@ extension GADUtil {
 public struct GADConfig: Codable {
     var showTimes: Int?
     var clickTimes: Int?
+    var interstitialExpired: Int?
+    var openExpired: Int?
     var ads: [GADModels?]?
     
     func arrayWith(_ postion: GADPosition) -> [GADModel] {

@@ -37,7 +37,6 @@ Pod::Spec.new do |s|
   # }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
-   s.frameworks = 'UIKit', 'MapKit'
-   s.dependency 'Google-Mobile-Ads-SDK'
-   s.static_framework = true
+  s.frameworks = 'UIKit'
+  s.dependency 'Google-Mobile-Ads-SDK'
 end

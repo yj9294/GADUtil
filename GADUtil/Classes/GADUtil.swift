@@ -9,7 +9,13 @@ public class GADUtil: NSObject {
         Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             self.ads.forEach {
                 $0.loadedArray = $0.loadedArray.filter({ model in
-                    return model.loadedDate?.isExpired == false
+                    if model.position == .open {
+                        let expired = Double(self.config?.openExpired ?? 60)
+                        return model.loadedDate?.isExpired(with: expired * 60) == false
+                    } else {
+                        let expired = Double(self.config?.interstitialExpired ?? 60)
+                        return model.loadedDate?.isExpired(with: expired * 60) == false
+                    }
                 })
             }
         }
@@ -444,8 +450,8 @@ extension GADLoadModel {
 }
 
 extension Date {
-    var isExpired: Bool {
-        Date().timeIntervalSince1970 - self.timeIntervalSince1970 > 3000
+    func isExpired(with time: Double) -> Bool {
+        Date().timeIntervalSince1970 - self.timeIntervalSince1970 > time
     }
     
     var isToday: Bool {

@@ -501,7 +501,7 @@ extension GADInterstitialModel: GADFullScreenContentDelegate {
                 self.price = Double(truncating: adValue.value)
                 self.currency = adValue.currencyCode
             }
-            self.network = self.ad?.responseInfo.adNetworkClassName
+            self.network = self.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName
             self.ad?.fullScreenContentDelegate = self
             self.loadedDate = Date()
             self.loadedHandler?(true, "")
@@ -550,8 +550,7 @@ extension GADOpenModel: GADFullScreenContentDelegate {
     override func loadAd(completion: ((_ result: Bool, _ error: String) -> Void)?) {
         loadedHandler = completion
         loadedDate = nil
-        let orientation = (UIApplication.shared.connectedScenes.filter({$0 is UIWindowScene}).first as? UIWindowScene)?.interfaceOrientation ?? .portrait
-        GADAppOpenAd.load(withAdUnitID: model?.theAdID ?? "", request: GADRequest(), orientation: .portrait) { [weak self] ad, error in
+        GADAppOpenAd.load(withAdUnitID: model?.theAdID ?? "", request: GADRequest()) { [weak self] ad, error in
             guard let self = self else { return }
             if let error = error {
                 NSLog("[AD] (\(self.position.rawValue)) load ad FAILED for id \(self.model?.theAdID ?? "invalid id")")
@@ -563,7 +562,7 @@ extension GADOpenModel: GADFullScreenContentDelegate {
                 self.price = Double(truncating: adValue.value)
                 self.currency = adValue.currencyCode
             }
-            self.network = self.ad?.responseInfo.adNetworkClassName
+            self.network = self.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName
             NSLog("[AD] (\(self.position.rawValue)) load ad SUCCESSFUL for id \(self.model?.theAdID ?? "invalid id") ✅✅✅✅")
             self.ad?.fullScreenContentDelegate = self
             self.loadedDate = Date()
@@ -645,7 +644,7 @@ extension GADNativeModel: GADNativeAdLoaderDelegate {
             self.price = Double(truncating: adValue.value)
             self.currency = adValue.currencyCode
         }
-        self.network = self.nativeAd?.responseInfo.adNetworkClassName
+        self.network = self.nativeAd?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName
         loadedDate = Date()
         loadedHandler?(true, "")
     }

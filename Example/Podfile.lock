@@ -1,5 +1,5 @@
 PODS:
-  - GADUtil (0.1.0):
+  - GADUtil (1.0.4):
     - Google-Mobile-Ads-SDK
   - Google-Mobile-Ads-SDK (10.8.0):
     - GoogleAppMeasurement (< 11.0, >= 7.0)
@@ -66,7 +66,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  GADUtil: 11fbc86940ecb81b3a8103c4a7db48672cb70123
+  GADUtil: fc804c28be7349fd9083bd7e3d843c2321e4b5c6
   Google-Mobile-Ads-SDK: 69daa7fb42061b425340706e382e87fab3e666a3
   GoogleAppMeasurement: 722db6550d1e6d552b08398b69a975ac61039338
   GoogleUserMessagingPlatform: 5f8b30daf181805317b6b985bb51c1ff3beca054
@@ -74,6 +74,6 @@ SPEC CHECKSUMS:
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
 
-PODFILE CHECKSUM: 0227bf05955a83ab6f95dcee0b52aad4f17866f9
+PODFILE CHECKSUM: 195cf5cbb3c8f9a4dab275a72ef0898edf8d4b7c
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.15.0

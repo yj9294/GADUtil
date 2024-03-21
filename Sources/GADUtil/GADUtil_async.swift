@@ -48,7 +48,7 @@ extension GADUtil {
     @discardableResult
     public func load(_ position: GADPosition) async throws -> GADBaseModel? {
         let ads = ads.filter{
-            $0.position == position
+            $0.position.rawValue == position.rawValue
         }
         return try await ads.first?.beginAddWaterFall()
     }
@@ -106,10 +106,12 @@ extension GADLoadModel {
             throw GADPreloadError.loading
         }
         var ad: GADBaseModel? = nil
-        if position == .native {
-            ad = GADNativeModel(model: array[index])
-        } else if position == .interstitial {
-            ad = GADInterstitialModel(model: array[index])
+        if position.isNative {
+            ad = GADNativeModel(model: array[index], position: position)
+        } else if position.isInterstital {
+            ad = GADInterstitialModel(model: array[index], position: position)
+        } else if position.isOpen {
+            ad = GADOpenModel(model: array[index], position: position)
         }
         guard let ad = ad  else {
             NSLog("[AD] (\(position.rawValue)) 广告位错误.")

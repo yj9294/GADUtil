@@ -351,6 +351,21 @@ public protocol GADPosition {
     var isInterstital: Bool { get }
     var rawValue: String { get }
     var isPreload: Bool { get }
+    var name: String { get }
+}
+
+extension GADPosition {
+    var name: String {
+        if isNative {
+            return "native"
+        } else if isInterstital {
+            return "interstital"
+        } else if isOpen {
+            return "open"
+        } else {
+            return "banner"
+        }
+    }
 }
 
 

@@ -299,7 +299,11 @@ public class GADBaseModel: NSObject, Identifiable {
     // 收入货币
     public var currency: String = "USD"
     // 广告网络
-    public var network: String? = nil
+    public var network: String = ""
+    // load ip
+    public var loadIP: String = ""
+    // impress ip
+    public var impressIP: String = ""
     
     init(model: GADModel?, position: any GADPosition) {
         self.model = model
@@ -533,7 +537,7 @@ extension GADInterstitialModel: GADFullScreenContentDelegate {
                 self.price = Double(truncating: adValue.value)
                 self.currency = adValue.currencyCode
             }
-            self.network = self.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName
+            self.network = self.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
             self.ad?.fullScreenContentDelegate = self
             self.loadedDate = Date()
             self.loadedHandler?(true, "")
@@ -594,7 +598,7 @@ extension GADOpenModel: GADFullScreenContentDelegate {
                 self.price = Double(truncating: adValue.value)
                 self.currency = adValue.currencyCode
             }
-            self.network = self.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName
+            self.network = self.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
             NSLog("[AD] (\(self.position)) load ad SUCCESSFUL for id \(self.model?.theAdID ?? "invalid id") ✅✅✅✅")
             self.ad?.fullScreenContentDelegate = self
             self.loadedDate = Date()
@@ -676,7 +680,7 @@ extension GADNativeModel: GADNativeAdLoaderDelegate {
             self.price = Double(truncating: adValue.value)
             self.currency = adValue.currencyCode
         }
-        self.network = self.nativeAd?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName
+        self.network = self.nativeAd?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
         loadedDate = Date()
         loadedHandler?(true, "")
     }

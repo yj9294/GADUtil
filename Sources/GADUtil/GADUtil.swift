@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import GoogleMobileAds
 
 public class GADUtil: NSObject {
@@ -159,6 +160,25 @@ extension GADUtil {
         if position.isOpen || position.isInterstital {
             /// 有廣告
             if let ad = loadAD?.loadedArray.first as? GADFullScreenModel, !isGADLimited {
+                if let ad = ad as? GADInterstitialModel {
+                    ad.ad?.paidEventHandler = {  [weak ad] adValue in
+                        ad?.network = ad?.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
+                        ad?.price = Double(truncating: adValue.value)
+                        ad?.currency = adValue.currencyCode
+                        RequestIP.requestIP { ip in
+                            NotificationCenter.default.post(name: .adPaid, object: ad)
+                        }
+                    }
+                } else if let ad = ad as? GADOpenModel {
+                    ad.ad?.paidEventHandler = {  [weak ad] adValue in
+                        ad?.network = ad?.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
+                        ad?.price = Double(truncating: adValue.value)
+                        ad?.currency = adValue.currencyCode
+                        RequestIP.requestIP { ip in
+                            NotificationCenter.default.post(name: .adPaid, object: ad)
+                        }
+                    }
+                }
                 ad.impressionHandler = { [weak self, loadAD] in
                     loadAD?.impressionDate = Date()
                     self?.add(.show)
@@ -187,6 +207,15 @@ extension GADUtil {
                 }
                 ad.nativeAd?.unregisterAdView()
                 ad.nativeAd?.delegate = ad
+                ad.nativeAd?.paidEventHandler = {  [weak ad] adValue in
+                    ad?.network = ad?.nativeAd?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
+                    ad?.price = Double(truncating: adValue.value)
+                    ad?.currency = adValue.currencyCode
+                    RequestIP.requestIP{ ip in
+                        ad?.impressIP = ip
+                        NotificationCenter.default.post(name: .adPaid, object: ad)
+                    }
+                }
                 ad.impressionHandler = { [weak loadAD]  in
                     loadAD?.impressionDate = Date()
                     self.add(.show)
@@ -473,8 +502,11 @@ extension GADLoadModel {
             
             /// 成功
             if isSuccess {
-                self.loadedArray.append(ad)
-                callback?(true)
+                RequestIP.requestIP { ip in
+                    ad.loadIP = ip
+                    self.loadedArray.append(ad)
+                    callback?(true)
+                }
                 return
             }
             
@@ -743,8 +775,53 @@ extension UserDefaults {
     }
 }
 
+public class  RequestIP {
+    
+    struct IPResponse: Codable {
+        var ip: String?
+        var city: String?
+        var country: String?
+    }
+
+    static func requestIP(completion: ((String)->Void)? = nil) {
+        let token = SubscriptionToken()
+        NSLog("[IP] 开始请求")
+        URLSession.shared.dataTaskPublisher(for: URL(string: "https://ipinfo.io/json")!).map({
+            $0.data
+        }).eraseToAnyPublisher().decode(type: IPResponse.self, decoder: JSONDecoder()).sink { complete in
+            if case .failure(let error) = complete {
+                NSLog("[IP] err:\(error)")
+                DispatchQueue.main.async {
+                    completion?("192.168.0.1")
+                }
+            }
+            token.unseal()
+        } receiveValue: { response in
+            NSLog("[IP] 当前国家:\(response.country ?? "")")
+            DispatchQueue.main.async {
+                completion?(response.ip ?? "192.168.0.1")
+            }
+        }.seal(in: token)
+    }
+}
+
+public class SubscriptionToken {
+    var cancelable: AnyCancellable?
+    func unseal() { cancelable = nil }
+}
+
+extension AnyCancellable {
+    /// 需要 出现 unseal 方法释放 cancelable
+    func seal(in token: SubscriptionToken) {
+        token.cancelable = self
+    }
+}
+
+
+
 extension Notification.Name {
     public static let nativeUpdate = Notification.Name(rawValue: "homeNativeUpdate")
+    public static let adPaid = Notification.Name(rawValue: "ad.paid")
 }
 
 extension String {

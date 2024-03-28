@@ -143,11 +143,12 @@ extension GADUtil {
         case .interstitial, .open:
             /// 有廣告
             if let ad = loadAD?.loadedArray.first as? GADFullScreenModel, !isGADLimited {
-                ad.impressionHandler = { [weak self, loadAD] in
+                ad.impressionHandler = { [weak self, loadAD, ad] in
                     loadAD?.impressionDate = Date()
                     self?.add(.show)
                     self?.display(position)
                     self?.load(position)
+                    NotificationCenter.default.post(name: .adImpression, object: ad)
                 }
                 ad.clickHandler = { [weak self] in
                     self?.add(.click)
@@ -156,6 +157,7 @@ extension GADUtil {
                     self?.disappear(position)
                     completion?(nil)
                 }
+                NotificationCenter.default.post(name: .adPresent, object: ad)
                 ad.present(from: vc)
             } else {
                 completion?(nil)
@@ -175,6 +177,7 @@ extension GADUtil {
                     self.add(.show)
                     self.display(position)
                     self.load(position)
+                    NotificationCenter.default.post(name: .adImpression, object: ad)
                 }
                 ad.clickHandler = {
                     self.add(.click)
@@ -695,6 +698,8 @@ extension UserDefaults {
 
 extension Notification.Name {
     public static let nativeUpdate = Notification.Name(rawValue: "homeNativeUpdate")
+    public static let adImpression = Notification.Name(rawValue: "ad.impression")
+    public static let adPresent = Notification.Name(rawValue: "ad.present")
 }
 
 extension String {

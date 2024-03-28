@@ -166,6 +166,7 @@ extension GADUtil {
                         ad?.price = Double(truncating: adValue.value)
                         ad?.currency = adValue.currencyCode
                         RequestIP.requestIP { ip in
+                            ad?.impressIP = ip
                             NotificationCenter.default.post(name: .adPaid, object: ad)
                         }
                     }
@@ -175,6 +176,7 @@ extension GADUtil {
                         ad?.price = Double(truncating: adValue.value)
                         ad?.currency = adValue.currencyCode
                         RequestIP.requestIP { ip in
+                            ad?.impressIP = ip
                             NotificationCenter.default.post(name: .adPaid, object: ad)
                         }
                     }
@@ -186,6 +188,7 @@ extension GADUtil {
                     if position.isPreload {
                         self?.load(position)
                     }
+                    NotificationCenter.default.post(name: .adPresent, object: ad)
                 }
                 ad.clickHandler = { [weak self] in
                     self?.add(.click)
@@ -194,6 +197,7 @@ extension GADUtil {
                     self?.disappear(position)
                     completion?(nil)
                 }
+                NotificationCenter.default.post(name: .adPresent, object: ad)
                 ad.present(from: vc)
             } else {
                 completion?(nil)
@@ -223,6 +227,7 @@ extension GADUtil {
                     if position.isPreload {
                         self.load(position)
                     }
+                    NotificationCenter.default.post(name: .adPresent, object: ad)
                 }
                 ad.clickHandler = {
                     self.add(.click)
@@ -822,6 +827,8 @@ extension AnyCancellable {
 extension Notification.Name {
     public static let nativeUpdate = Notification.Name(rawValue: "homeNativeUpdate")
     public static let adPaid = Notification.Name(rawValue: "ad.paid")
+    public static let adImpression = Notification.Name(rawValue: "ad.impression")
+    public static let adPresent = Notification.Name(rawValue: "ad.present")
 }
 
 extension String {

@@ -188,7 +188,7 @@ extension GADUtil {
                     if position.isPreload {
                         self?.load(position)
                     }
-                    NotificationCenter.default.post(name: .adPresent, object: ad)
+                    NotificationCenter.default.post(name: .adImpression, object: ad)
                 }
                 ad.clickHandler = { [weak self] in
                     self?.add(.click)
@@ -227,7 +227,7 @@ extension GADUtil {
                     if position.isPreload {
                         self.load(position)
                     }
-                    NotificationCenter.default.post(name: .adPresent, object: ad)
+                    NotificationCenter.default.post(name: .adImpression, object: ad)
                 }
                 ad.clickHandler = {
                     self.add(.click)

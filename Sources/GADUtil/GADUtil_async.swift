@@ -46,7 +46,7 @@ extension GADUtil {
     }
     
     @discardableResult
-    public func load(_ position: GADPosition) async throws -> GADBaseModel? {
+    public func load(_ position: GADPosition, p: GADScene) async throws -> GADBaseModel? {
         let ads = ads.filter{
             $0.position.rawValue == position.rawValue
         }
@@ -54,10 +54,10 @@ extension GADUtil {
     }
     
     @discardableResult
-    public func show(_ position: GADPosition) async -> GADBaseModel? {
+    public func show(_ position: GADPosition, p: GADScene) async -> GADBaseModel? {
         debugPrint("[ad] 开始展示")
         return await withCheckedContinuation { continuation in
-            show(position) { model in
+            show(position, p: p) { model in
                 debugPrint("[ad] 展示")
                 continuation.resume(returning: model)
             }
@@ -107,11 +107,11 @@ extension GADLoadModel {
         }
         var ad: GADBaseModel? = nil
         if position.isNative {
-            ad = GADNativeModel(model: array[index], position: position)
+            ad = GADNativeModel(model: array[index], position: position, p: p)
         } else if position.isInterstital {
-            ad = GADInterstitialModel(model: array[index], position: position)
+            ad = GADInterstitialModel(model: array[index], position: position, p: p)
         } else if position.isOpen {
-            ad = GADOpenModel(model: array[index], position: position)
+            ad = GADOpenModel(model: array[index], position: position, p: p)
         }
         guard let ad = ad  else {
             NSLog("[AD] (\(position.rawValue)) 广告位错误.")

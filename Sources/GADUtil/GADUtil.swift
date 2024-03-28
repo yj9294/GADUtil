@@ -247,7 +247,7 @@ extension GADUtil {
     }
     
     /// 清除缓存 针对loadedArray数组
-    fileprivate func clean(_ position: GADPosition) {
+    public func clean(_ position: GADPosition) {
         let loadAD = ads.filter{
             $0.position.rawValue == position.rawValue
         }.first

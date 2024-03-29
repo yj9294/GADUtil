@@ -392,12 +392,12 @@ public protocol GADPosition {
     var name: String { get }
 }
 
-public protocol GADScene: GADPosition {
-    
+public protocol GADScene {
+    var rawValue: String { get }
 }
 
 extension GADPosition {
-    var name: String {
+    public var name: String {
         if isNative {
             return "native"
         } else if isInterstital {

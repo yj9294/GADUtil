@@ -131,7 +131,7 @@ extension GADUtil {
     
     /// 加载
     @available(*, renamed: "load()")
-    public func load(_ position: GADPosition, p: GADScene, completion: ((Bool)->Void)? = nil) {
+    public func load(_ position: GADPosition, p: GADScene = GADSceneExt.none, completion: ((Bool)->Void)? = nil) {
         let ads = ads.filter{
             $0.position.rawValue == position.rawValue
         }
@@ -149,7 +149,7 @@ extension GADUtil {
     
     /// 展示
     @available(*, renamed: "show()")
-    public func show(_ position: GADPosition, p: GADScene, from vc: UIViewController? = nil , completion: ((GADBaseModel?)->Void)? = nil) {
+    public func show(_ position: GADPosition, p: GADScene = GADSceneExt.none, from vc: UIViewController? = nil , completion: ((GADBaseModel?)->Void)? = nil) {
         // 超限需要清空广告
         if isGADLimited {
             GADUtil.positions.forEach {  p in
@@ -410,28 +410,11 @@ extension GADPosition {
     }
 }
 
-enum GADSceneExt: String, GADScene {
+public enum GADSceneExt: String, GADScene {
     case none
-    var isNative: Bool {
-        return false
-    }
-    
-    var isOpen: Bool {
-        return false
-    }
-    
-    var isInterstital: Bool {
-        return false
-    }
-    
-    var rawValue: String {
+    public var rawValue: String {
         return "none"
     }
-    
-    var isPreload: Bool {
-        return false
-    }
-    
 }
 
 

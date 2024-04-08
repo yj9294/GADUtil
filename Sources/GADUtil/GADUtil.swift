@@ -46,6 +46,26 @@ public class GADUtil: NSObject {
         }
     }
     
+    // load IP shared instance
+    public var loadIP: String? {
+        set{
+            UserDefaults.standard.setModel(newValue, forKey: .loadIP)
+        }
+        get {
+            UserDefaults.standard.model(String.self, forKey: .loadIP)
+        }
+    }
+    
+    // impression IP shared instance
+    public var impressionIP: String? {
+        set{
+            UserDefaults.standard.setModel(newValue, forKey: .impressionIP)
+        }
+        get {
+            UserDefaults.standard.model(String.self, forKey: .impressionIP)
+        }
+    }
+    
     // 本地记录 限制次数
     fileprivate var limit: GADLimit? {
         set{
@@ -169,10 +189,9 @@ extension GADUtil {
                         ad?.price = Double(truncating: adValue.value)
                         ad?.currency = adValue.currencyCode
                         ad?.precisionType = adValue.precision.type
-                        RequestIP().requestIP { ip in
-                            ad?.impressIP = ip
-                            NotificationCenter.default.post(name: .adPaid, object: ad)
-                        }
+                        RequestIP.requestIP(.impression)
+                        ad?.impressIP = GADUtil.share.impressionIP ?? "192.168.0.1"
+                        NotificationCenter.default.post(name: .adPaid, object: ad)
                     }
                 } else if let ad = ad as? GADOpenModel {
                     ad.ad?.paidEventHandler = {  [weak ad] adValue in
@@ -180,10 +199,9 @@ extension GADUtil {
                         ad?.price = Double(truncating: adValue.value)
                         ad?.currency = adValue.currencyCode
                         ad?.precisionType = adValue.precision.type
-                        RequestIP().requestIP { ip in
-                            ad?.impressIP = ip
-                            NotificationCenter.default.post(name: .adPaid, object: ad)
-                        }
+                        RequestIP.requestIP(.impression)
+                        ad?.impressIP = GADUtil.share.impressionIP ?? "192.168.0.1"
+                        NotificationCenter.default.post(name: .adPaid, object: ad)
                     }
                 }
                 ad.impressionHandler = { [weak self, loadAD] in
@@ -221,10 +239,9 @@ extension GADUtil {
                     ad?.price = Double(truncating: adValue.value)
                     ad?.currency = adValue.currencyCode
                     ad?.precisionType = adValue.precision.type
-                    RequestIP().requestIP{ ip in
-                        ad?.impressIP = ip
-                        NotificationCenter.default.post(name: .adPaid, object: ad)
-                    }
+                    RequestIP.requestIP(.impression)
+                    ad?.impressIP = GADUtil.share.impressionIP ?? "192.168.0.1"
+                    NotificationCenter.default.post(name: .adPaid, object: ad)
                 }
                 ad.impressionHandler = { [weak loadAD]  in
                     loadAD?.impressionDate = Date()
@@ -530,7 +547,7 @@ extension GADLoadModel {
             
             /// 成功
             if isSuccess {
-                RequestIP().requestIP { ip in
+                RequestIP.requestIP(.load) { ip in
                     ad.loadIP = ip
                     self.loadedArray.append(ad)
                     callback?(true)
@@ -795,17 +812,21 @@ extension UserDefaults {
     }
 }
 
-public class  RequestIP {
+class  RequestIP {
     
     struct IPResponse: Codable {
         var ip: String?
         var city: String?
         var country: String?
     }
+    
+    enum State: String {
+        case load, impression
+    }
 
-    public func requestIP(completion: ((String)->Void)? = nil) {
+    static func requestIP(_ state: State, completion: ((String)->Void)? = nil) {
         let token = SubscriptionToken()
-        NSLog("[IP] 开始请求")
+        NSLog("[IP] 开始请求, state: \(state.rawValue)")
         URLSession.shared.dataTaskPublisher(for: URL(string: "https://ipinfo.io/json")!).map({
             $0.data
         }).eraseToAnyPublisher().decode(type: IPResponse.self, decoder: JSONDecoder()).sink { complete in
@@ -817,9 +838,15 @@ public class  RequestIP {
             }
             token.unseal()
         } receiveValue: { response in
-            NSLog("[IP] 当前国家:\(response.country ?? "")")
+            NSLog("[IP] 当前国家:\(response.country ?? ""), state: \(state.rawValue)")
+            let ip = response.ip ?? "192.168.0.1"
+            if state == .load {
+                UserDefaults.standard.setModel(ip, forKey: .loadIP)
+            } else {
+                UserDefaults.standard.setModel(ip, forKey: .impressionIP)
+            }
             DispatchQueue.main.async {
-                completion?(response.ip ?? "192.168.0.1")
+                completion?(ip)
             }
         }.seal(in: token)
     }
@@ -866,4 +893,6 @@ extension Notification.Name {
 extension String {
     static let adConfig = "adConfig"
     static let adLimited = "adLimited"
+    static let loadIP = "loadIP"
+    static let impressionIP = "impressionIP"
 }

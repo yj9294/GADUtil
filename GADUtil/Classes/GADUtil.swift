@@ -68,7 +68,7 @@ public class GADUtil: NSObject {
         
     /// 广告位加载模型
     let ads:[GADLoadModel] = GADUtil.positions.map { p in
-        GADLoadModel(position: p)
+        GADLoadModel(position: p, p: GADSceneExt.none)
     }
 }
 
@@ -132,13 +132,15 @@ extension GADUtil {
     
     /// 加载
     @available(*, renamed: "load()")
-    public func load(_ position: GADPosition, completion: ((Bool)->Void)? = nil) {
+    public func load(_ position: GADPosition, p: GADScene = GADSceneExt.none, completion: ((Bool)->Void)? = nil) {
         let ads = ads.filter{
             $0.position.rawValue == position.rawValue
         }
-        ads.first?.beginAddWaterFall(callback: { isSuccess in
+        let ad = ads.first
+        ad?.p = p
+        ad?.beginAddWaterFall(callback: { isSuccess in
             if position.isNative {
-                self.show(position) { ad in
+                self.show(position, p: p) { ad in
                     NotificationCenter.default.post(name: .nativeUpdate, object: ad)
                 }
             }
@@ -148,7 +150,7 @@ extension GADUtil {
     
     /// 展示
     @available(*, renamed: "show()")
-    public func show(_ position: GADPosition, from vc: UIViewController? = nil , completion: ((GADBaseModel?)->Void)? = nil) {
+    public func show(_ position: GADPosition, p: GADScene = GADSceneExt.none, from vc: UIViewController? = nil , completion: ((GADBaseModel?)->Void)? = nil) {
         // 超限需要清空广告
         if isGADLimited {
             GADUtil.positions.forEach {  p in
@@ -166,7 +168,8 @@ extension GADUtil {
                         ad?.network = ad?.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
                         ad?.price = Double(truncating: adValue.value)
                         ad?.currency = adValue.currencyCode
-                        RequestIP.requestIP { ip in
+                        ad?.precisionType = adValue.precision.type
+                        RequestIP().requestIP { ip in
                             ad?.impressIP = ip
                             NotificationCenter.default.post(name: .adPaid, object: ad)
                         }
@@ -176,7 +179,8 @@ extension GADUtil {
                         ad?.network = ad?.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
                         ad?.price = Double(truncating: adValue.value)
                         ad?.currency = adValue.currencyCode
-                        RequestIP.requestIP { ip in
+                        ad?.precisionType = adValue.precision.type
+                        RequestIP().requestIP { ip in
                             ad?.impressIP = ip
                             NotificationCenter.default.post(name: .adPaid, object: ad)
                         }
@@ -187,7 +191,7 @@ extension GADUtil {
                     self?.add(.show)
                     self?.display(position)
                     if position.isPreload {
-                        self?.load(position)
+                        self?.load(position, p: p)
                     }
                     NotificationCenter.default.post(name: .adImpression, object: ad)
                 }
@@ -216,7 +220,8 @@ extension GADUtil {
                     ad?.network = ad?.nativeAd?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
                     ad?.price = Double(truncating: adValue.value)
                     ad?.currency = adValue.currencyCode
-                    RequestIP.requestIP{ ip in
+                    ad?.precisionType = adValue.precision.type
+                    RequestIP().requestIP{ ip in
                         ad?.impressIP = ip
                         NotificationCenter.default.post(name: .adPaid, object: ad)
                     }
@@ -226,7 +231,7 @@ extension GADUtil {
                     self.add(.show)
                     self.display(position)
                     if position.isPreload {
-                        self.load(position)
+                        self.load(position, p: p)
                     }
                     NotificationCenter.default.post(name: .adImpression, object: ad)
                 }
@@ -246,7 +251,7 @@ extension GADUtil {
     }
     
     /// 清除缓存 针对loadedArray数组
-    fileprivate func clean(_ position: GADPosition) {
+    public func clean(_ position: GADPosition) {
         let loadAD = ads.filter{
             $0.position.rawValue == position.rawValue
         }.first
@@ -329,6 +334,7 @@ public class GADBaseModel: NSObject, Identifiable {
     /// 廣告位置
     public var position: any GADPosition
     
+    public var p: any GADScene
     // 收入
     public var price: Double = 0.0
     // 收入货币
@@ -339,10 +345,13 @@ public class GADBaseModel: NSObject, Identifiable {
     public var loadIP: String = ""
     // impress ip
     public var impressIP: String = ""
+    // precision type form adValue
+    public var precisionType: String = ""
     
-    init(model: GADModel?, position: any GADPosition) {
+    init(model: GADModel?, position: any GADPosition, p: any GADScene) {
         self.model = model
         self.position = position
+        self.p = p
         super.init()
     }
 }
@@ -389,8 +398,12 @@ public protocol GADPosition {
     var name: String { get }
 }
 
+public protocol GADScene {
+    var rawValue: String { get }
+}
+
 extension GADPosition {
-    var name: String {
+    public var name: String {
         if isNative {
             return "native"
         } else if isInterstital {
@@ -403,11 +416,19 @@ extension GADPosition {
     }
 }
 
+public enum GADSceneExt: String, GADScene {
+    case none
+    public var rawValue: String {
+        return "none"
+    }
+}
 
 
 class GADLoadModel: NSObject {
     /// 當前廣告位置類型
     var position: any GADPosition
+    /// 當前廣告场景類型
+    var p: any GADScene
     /// 是否正在加載中
     var isPreloadingAD: Bool {
         return loadingArray.count > 0
@@ -433,8 +454,9 @@ class GADLoadModel: NSObject {
     var impressionDate = Date(timeIntervalSinceNow: -100)
     
         
-    init(position: any GADPosition) {
+    init(position: any GADPosition, p: any GADScene) {
         self.position = position
+        self.p = p
         super.init()
     }
 }
@@ -487,11 +509,11 @@ extension GADLoadModel {
         
         var ad: GADBaseModel? = nil
         if position.isNative {
-            ad = GADNativeModel(model: array[index], position: position)
+            ad = GADNativeModel(model: array[index], position: position, p: p)
         } else if position.isOpen {
-            ad = GADOpenModel(model: array[index], position: position)
+            ad = GADOpenModel(model: array[index], position: position, p: p)
         } else if position.isInterstital {
-            ad = GADInterstitialModel(model: array[index], position: position)
+            ad = GADInterstitialModel(model: array[index], position: position, p: p)
         }
         guard let ad = ad  else {
             NSLog("[AD] (\(position.rawValue)) posion error.")
@@ -508,7 +530,7 @@ extension GADLoadModel {
             
             /// 成功
             if isSuccess {
-                RequestIP.requestIP { ip in
+                RequestIP().requestIP { ip in
                     ad.loadIP = ip
                     self.loadedArray.append(ad)
                     callback?(true)
@@ -586,10 +608,6 @@ extension GADInterstitialModel: GADFullScreenContentDelegate {
             }
             NSLog("[AD] (\(self.position)) load ad SUCCESSFUL for id \(self.model?.theAdID ?? "invalid id") ✅✅✅✅")
             self.ad = ad
-            self.ad?.paidEventHandler = { adValue in
-                self.price = Double(truncating: adValue.value)
-                self.currency = adValue.currencyCode
-            }
             self.network = self.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
             self.ad?.fullScreenContentDelegate = self
             self.loadedDate = Date()
@@ -647,10 +665,6 @@ extension GADOpenModel: GADFullScreenContentDelegate {
                 return
             }
             self.ad = ad
-            self.ad?.paidEventHandler = { adValue in
-                self.price = Double(truncating: adValue.value)
-                self.currency = adValue.currencyCode
-            }
             self.network = self.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
             NSLog("[AD] (\(self.position)) load ad SUCCESSFUL for id \(self.model?.theAdID ?? "invalid id") ✅✅✅✅")
             self.ad?.fullScreenContentDelegate = self
@@ -789,7 +803,7 @@ public class  RequestIP {
         var country: String?
     }
 
-    static func requestIP(completion: ((String)->Void)? = nil) {
+    public func requestIP(completion: ((String)->Void)? = nil) {
         let token = SubscriptionToken()
         NSLog("[IP] 开始请求")
         URLSession.shared.dataTaskPublisher(for: URL(string: "https://ipinfo.io/json")!).map({
@@ -820,6 +834,23 @@ extension AnyCancellable {
     /// 需要 出现 unseal 方法释放 cancelable
     func seal(in token: SubscriptionToken) {
         token.cancelable = self
+    }
+}
+
+extension GADAdValuePrecision {
+    var type: String {
+        switch self {
+        case .unknown:
+            return "unknown"
+        case .estimated:
+            return "estimated"
+        case .publisherProvided:
+            return "publisherProvided"
+        case .precise:
+            return "precise"
+        @unknown default:
+            return ""
+        }
     }
 }
 

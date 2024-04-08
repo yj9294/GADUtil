@@ -169,7 +169,7 @@ extension GADUtil {
                         ad?.price = Double(truncating: adValue.value)
                         ad?.currency = adValue.currencyCode
                         ad?.precisionType = adValue.precision.type
-                        RequestIP.requestIP { ip in
+                        RequestIP().requestIP { ip in
                             ad?.impressIP = ip
                             NotificationCenter.default.post(name: .adPaid, object: ad)
                         }
@@ -180,7 +180,7 @@ extension GADUtil {
                         ad?.price = Double(truncating: adValue.value)
                         ad?.currency = adValue.currencyCode
                         ad?.precisionType = adValue.precision.type
-                        RequestIP.requestIP { ip in
+                        RequestIP().requestIP { ip in
                             ad?.impressIP = ip
                             NotificationCenter.default.post(name: .adPaid, object: ad)
                         }
@@ -221,7 +221,7 @@ extension GADUtil {
                     ad?.price = Double(truncating: adValue.value)
                     ad?.currency = adValue.currencyCode
                     ad?.precisionType = adValue.precision.type
-                    RequestIP.requestIP{ ip in
+                    RequestIP().requestIP{ ip in
                         ad?.impressIP = ip
                         NotificationCenter.default.post(name: .adPaid, object: ad)
                     }
@@ -530,7 +530,7 @@ extension GADLoadModel {
             
             /// 成功
             if isSuccess {
-                RequestIP.requestIP { ip in
+                RequestIP().requestIP { ip in
                     ad.loadIP = ip
                     self.loadedArray.append(ad)
                     callback?(true)
@@ -803,7 +803,7 @@ public class  RequestIP {
         var country: String?
     }
 
-    static func requestIP(completion: ((String)->Void)? = nil) {
+    public func requestIP(completion: ((String)->Void)? = nil) {
         let token = SubscriptionToken()
         NSLog("[IP] 开始请求")
         URLSession.shared.dataTaskPublisher(for: URL(string: "https://ipinfo.io/json")!).map({

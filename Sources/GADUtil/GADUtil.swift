@@ -168,6 +168,7 @@ extension GADUtil {
                         ad?.network = ad?.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
                         ad?.price = Double(truncating: adValue.value)
                         ad?.currency = adValue.currencyCode
+                        ad?.precisionType = adValue.precision.type
                         RequestIP.requestIP { ip in
                             ad?.impressIP = ip
                             NotificationCenter.default.post(name: .adPaid, object: ad)
@@ -178,6 +179,7 @@ extension GADUtil {
                         ad?.network = ad?.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
                         ad?.price = Double(truncating: adValue.value)
                         ad?.currency = adValue.currencyCode
+                        ad?.precisionType = adValue.precision.type
                         RequestIP.requestIP { ip in
                             ad?.impressIP = ip
                             NotificationCenter.default.post(name: .adPaid, object: ad)
@@ -218,6 +220,7 @@ extension GADUtil {
                     ad?.network = ad?.nativeAd?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
                     ad?.price = Double(truncating: adValue.value)
                     ad?.currency = adValue.currencyCode
+                    ad?.precisionType = adValue.precision.type
                     RequestIP.requestIP{ ip in
                         ad?.impressIP = ip
                         NotificationCenter.default.post(name: .adPaid, object: ad)
@@ -342,6 +345,8 @@ public class GADBaseModel: NSObject, Identifiable {
     public var loadIP: String = ""
     // impress ip
     public var impressIP: String = ""
+    // precision type form adValue
+    public var precisionType: String = ""
     
     init(model: GADModel?, position: any GADPosition, p: any GADScene) {
         self.model = model
@@ -603,10 +608,6 @@ extension GADInterstitialModel: GADFullScreenContentDelegate {
             }
             NSLog("[AD] (\(self.position)) load ad SUCCESSFUL for id \(self.model?.theAdID ?? "invalid id") ✅✅✅✅")
             self.ad = ad
-            self.ad?.paidEventHandler = { adValue in
-                self.price = Double(truncating: adValue.value)
-                self.currency = adValue.currencyCode
-            }
             self.network = self.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
             self.ad?.fullScreenContentDelegate = self
             self.loadedDate = Date()
@@ -664,10 +665,6 @@ extension GADOpenModel: GADFullScreenContentDelegate {
                 return
             }
             self.ad = ad
-            self.ad?.paidEventHandler = { adValue in
-                self.price = Double(truncating: adValue.value)
-                self.currency = adValue.currencyCode
-            }
             self.network = self.ad?.responseInfo.loadedAdNetworkResponseInfo?.adNetworkClassName ?? ""
             NSLog("[AD] (\(self.position)) load ad SUCCESSFUL for id \(self.model?.theAdID ?? "invalid id") ✅✅✅✅")
             self.ad?.fullScreenContentDelegate = self
@@ -837,6 +834,23 @@ extension AnyCancellable {
     /// 需要 出现 unseal 方法释放 cancelable
     func seal(in token: SubscriptionToken) {
         token.cancelable = self
+    }
+}
+
+extension GADAdValuePrecision {
+    var type: String {
+        switch self {
+        case .unknown:
+            return "unknown"
+        case .estimated:
+            return "estimated"
+        case .publisherProvided:
+            return "publisherProvided"
+        case .precise:
+            return "precise"
+        @unknown default:
+            return ""
+        }
     }
 }
 

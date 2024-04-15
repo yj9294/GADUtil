@@ -189,9 +189,11 @@ extension GADUtil {
                         ad?.price = Double(truncating: adValue.value)
                         ad?.currency = adValue.currencyCode
                         ad?.precisionType = adValue.precision.type
-                        RequestIP.requestIP(.impression)
-                        ad?.impressIP = GADUtil.share.impressionIP ?? "192.168.0.1"
-                        NotificationCenter.default.post(name: .adPaid, object: ad)
+                        RequestIP().requestIP(.impression) { ip in
+                            ad?.impressIP = ip
+                            NotificationCenter.default.post(name: .adPaid, object: ad)
+                        }
+
                     }
                 } else if let ad = ad as? GADOpenModel {
                     ad.ad?.paidEventHandler = {  [weak ad] adValue in
@@ -199,9 +201,10 @@ extension GADUtil {
                         ad?.price = Double(truncating: adValue.value)
                         ad?.currency = adValue.currencyCode
                         ad?.precisionType = adValue.precision.type
-                        RequestIP.requestIP(.impression)
-                        ad?.impressIP = GADUtil.share.impressionIP ?? "192.168.0.1"
-                        NotificationCenter.default.post(name: .adPaid, object: ad)
+                        RequestIP().requestIP(.impression) { ip in
+                            ad?.impressIP = ip
+                            NotificationCenter.default.post(name: .adPaid, object: ad)
+                        }
                     }
                 }
                 ad.impressionHandler = { [weak self, loadAD] in
@@ -239,9 +242,10 @@ extension GADUtil {
                     ad?.price = Double(truncating: adValue.value)
                     ad?.currency = adValue.currencyCode
                     ad?.precisionType = adValue.precision.type
-                    RequestIP.requestIP(.impression)
-                    ad?.impressIP = GADUtil.share.impressionIP ?? "192.168.0.1"
-                    NotificationCenter.default.post(name: .adPaid, object: ad)
+                    RequestIP().requestIP(.impression) { ip in
+                        ad?.impressIP = ip
+                        NotificationCenter.default.post(name: .adPaid, object: ad)
+                    }
                 }
                 ad.impressionHandler = { [weak loadAD]  in
                     loadAD?.impressionDate = Date()
@@ -547,7 +551,7 @@ extension GADLoadModel {
             
             /// 成功
             if isSuccess {
-                RequestIP.requestIP(.load) { ip in
+                RequestIP().requestIP(.load) { ip in
                     ad.loadIP = ip
                     self.loadedArray.append(ad)
                     callback?(true)
@@ -824,7 +828,7 @@ class  RequestIP {
         case load, impression
     }
 
-    static func requestIP(_ state: State, completion: ((String)->Void)? = nil) {
+    func requestIP(_ state: State, completion: ((String)->Void)? = nil) {
         let token = SubscriptionToken()
         NSLog("[IP] 开始请求, state: \(state.rawValue)")
         URLSession.shared.dataTaskPublisher(for: URL(string: "https://ipinfo.io/json")!).map({

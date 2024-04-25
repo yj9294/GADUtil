@@ -25,7 +25,7 @@ extension GADUtil {
     @MainActor
     public func dismiss() async {
         return await withCheckedContinuation { contin in
-            if let view = (UIApplication.shared.connectedScenes.filter({$0 is UIWindowScene}).first as? UIWindowScene)?.keyWindow, let vc = view.rootViewController {
+            if let view = (UIApplication.shared.connectedScenes.filter({$0 is UIWindowScene}).first as? UIWindowScene)?.windows.first, let vc = view.rootViewController {
                 if let presentedVC = vc.presentedViewController {
                     if let persentedPresentedVC = presentedVC.presentedViewController {
                         persentedPresentedVC.dismiss(animated: true) {

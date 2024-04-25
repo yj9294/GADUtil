@@ -640,7 +640,7 @@ extension GADInterstitialModel: GADFullScreenContentDelegate {
         Task.detached { @MainActor in
             if let vc = vc {
                 self.ad?.present(fromRootViewController: vc)
-            } else if let keyWindow = (UIApplication.shared.connectedScenes.filter({$0 is UIWindowScene}).first as? UIWindowScene)?.keyWindow, let rootVC = keyWindow.rootViewController {
+            } else if let keyWindow = (UIApplication.shared.connectedScenes.filter({$0 is UIWindowScene}).first as? UIWindowScene)?.windows.first, let rootVC = keyWindow.rootViewController {
                 if let pc = rootVC.presentedViewController {
                     self.ad?.present(fromRootViewController: pc)
                 } else {
@@ -698,7 +698,7 @@ extension GADOpenModel: GADFullScreenContentDelegate {
         Task.detached { @MainActor in
             if let vc = vc {
                 self.ad?.present(fromRootViewController: vc)
-            } else if let keyWindow = (UIApplication.shared.connectedScenes.filter({$0 is UIWindowScene}).first as? UIWindowScene)?.keyWindow, let rootVC = keyWindow.rootViewController {
+            } else if let keyWindow = (UIApplication.shared.connectedScenes.filter({$0 is UIWindowScene}).first as? UIWindowScene)?.windows.first, let rootVC = keyWindow.rootViewController {
                 if let pc = rootVC.presentedViewController {
                     self.ad?.present(fromRootViewController: pc)
                 } else {
